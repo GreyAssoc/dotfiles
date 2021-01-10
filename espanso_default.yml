@@ -1,0 +1,283 @@
+# espanso configuration file
+
+# This is the default configuration file, change it as you like it
+# You can refer to the official documentation:
+# https://espanso.org/docs/
+
+undo_backspace: false
+
+
+# Matches are the substitution rules, when you type the "trigger" string
+# it gets replaced by the "replace" string.
+matches:
+# Simple text replacement
+  - trigger: ":espanso"
+    replace: "Hi there!"
+
+# Dates
+  - trigger: ";da"
+    replace: "{{mydate}}"
+    vars:
+      - name: mydate
+        type: date
+        params:
+          format: "%Y.%m.%d"
+
+# Shell commands
+  - trigger: ":shell"
+    replace: "{{output}}"
+    vars:
+      - name: output
+        type: shell
+        params:
+          cmd: "echo Hello from your shell"
+
+# Simple text replacement
+  - trigger: ";sub"
+    replace: "subject:"
+
+# Simple text replacement
+  - trigger: ";paw"
+    replace: "party wall"
+
+# Simple text replacement
+  - trigger: ";pwm"
+    replace: "Party Wall Matters"
+     
+# Simple text replacement
+  - trigger: ";gc"
+    replace: "cd /home/stevew/greyserver/clients-current/"
+
+# Simple text replacement
+  - trigger: ";gp"
+    replace: "cd /home/stevew/greyserver/clients-past/"
+
+# Simple text replacement
+  - trigger: ";gi"
+    replace: "cd /home/stevew/greyserver/images/"
+
+# Simple text replacement
+  - trigger: ";gd"
+    replace: "cd /home/stevew/Downloads/"
+
+# Simple text replacement
+  - trigger: ";par"
+    replace: "Plans (Architect)"
+
+# Simple text replacement
+  - trigger: ";ps"
+    replace: "Plans (Structural)"
+
+# Simple text replacement
+  - trigger: ";eml"
+    replace: "steve.w@greyandassociates.co.uk"
+
+# Simple text replacement
+  - trigger: ";emlm"
+    replace: "maria.w@greyandassociates.co.uk"
+
+# Simple text replacement
+  - trigger: ";dd"
+    replace: "Draft Download"
+
+# Simple text replacement
+  - trigger: ";aw"
+    replace: "Award"
+
+# Simple text replacement
+  - trigger: ";loa"
+    replace: "Letter of Appointment"
+
+# Simple text replacement
+  - trigger: ";yy"
+    replace: "pwd | xclip -selection clipboard"
+
+# Simple text replacement
+  - trigger: ";pp"
+    replace: "xclip -o"
+
+# Simple text replacement
+  - trigger: ";sur"
+    replace: "surveyor"
+
+# Simple text replacement
+  - trigger: ";bo"
+    replace: "Building Owner"
+
+# Simple text replacement
+  - trigger: ";ao"
+    replace: "Adjoining Owner"
+
+# Simple text replacement
+  - trigger: ";soc"
+    replace: "Schedule of Condition"
+
+# Simple text replacement
+  - trigger: ";ssoc"
+    replace: "Schedules of Condition"
+
+# Simple text replacement
+  - trigger: ";ms"
+    replace: "Method Statement"
+
+# Simple text replacement
+  - trigger: ";br"
+    replace: "Building Regulations"
+
+# Simple text replacement
+  - trigger: ";spf"
+    replace: "Special Foundations"
+
+# Simple text replacement
+  - trigger: ";sfe"
+    replace: "Security for Expenses"
+
+# Simple text replacement
+  - trigger: ";la"
+    replace: "https://eservices.landregistry.gov.uk/eservices/FindAProperty/view/QuickEnquiryInit.do"
+
+# Simple text replacement
+  - trigger: ";dwg"
+    replace: "drawing"
+
+# Simple text replacement
+  - trigger: ";Dwg"
+    replace: "Drawing"
+
+# Simple text replacement
+  - trigger: ";uz"
+    replace: "unzip *zip"
+
+# Simple text replacement
+  - trigger: ";pwa"
+    replace: "Party Wall Act"
+
+# Simple text replacement
+  - trigger: ";pfw"
+    replace: "party fence wall"
+
+# Simple text replacement
+  - trigger: ";map"
+    replace: "maps.google.com"
+
+# Simple text replacement
+  - trigger: ";cc"
+    replace: "Conditional Consent"
+
+# Simple text replacement
+  - trigger: ";os"
+    replace: "other surveyor"
+
+# Simple text replacement
+  - trigger: ";cm"
+    replace: "- Combined"
+
+# Simple text replacement
+  - trigger: ";co"
+    replace: "Grey & Associates"
+
+# Simple text replacement
+  - trigger: ";sw"
+    replace: "Steve Whitehead"
+
+# Simple text replacement
+  - trigger: ";ho"
+    replace: "54 Forest Edge Road"
+
+# Simple text replacement
+  - trigger: ";fh"
+    replace: "Freeholder"
+
+# Simple text replacement
+  - trigger: ";lh"
+    replace: "Leaseholder"
+
+# Simple text replacement
+  - trigger: ";20"
+    replace: "20 - Notice Plans"
+
+# Simple text replacement
+  - trigger: ";21a"
+    replace: "21.1 - Plans (Architect)"
+
+# Simple text replacement
+  - trigger: ";21e"
+    replace: "21.1 - Plans (Architect) - Existing"
+
+# Simple text replacement
+  - trigger: ";21d"
+    replace: "21.2 - Plans (Architect) - Demolition"
+
+# Simple text replacement
+  - trigger: ";21p"
+    replace: "21.3 - Plans (Architect) - Proposed"
+
+# Simple text replacement
+  - trigger: ";22"
+    replace: "22 - Plans (Structural)"
+
+# Simple text replacement
+  - trigger: ";Ex"
+    replace: "Existing"
+
+# Simple text replacement
+  - trigger: ";Pr"
+    replace: "Proposed"
+
+# Simple text replacement
+  - trigger: ";np"
+    replace: "Notice Plans"
+
+# Simple text replacement
+  - trigger: ";ap"
+    replace: "Award Plans"
+
+# Simple text replacement
+  - trigger: ";s2"
+    replace: "Section 2(2)("
+
+# Simple text replacement
+  - trigger: ";na"
+    replace: "- NOT APPLICABLE"
+
+# Simple text replacement
+  - trigger: ";foun"
+    replace: "Foundations to be a minimum depth of 1,000mm below ground level. Building Control Officer is to confirm final depth."
+
+# Simple text replacement
+  - trigger: ";01"
+    replace: "01 - Title"
+
+# Simple text replacement
+  - trigger: ";imgresize"
+    replace: "find ./ -name [INSERTQUOTES]*.jpg[INSERTQUOTES] -exec mogrify -resize 2016x1512 {} [INSERTBACKSLASH];"
+
+# Simple text replacement
+  - trigger: ";mount"
+    replace: "sudo mount /dev/sdb mnt/usb"
+
+# Simple text replacement
+  - trigger: ";umount"
+    replace: "umount mnt/usb"
+
+# Simple text replacement
+  - trigger: ";vd"
+    replace: "viewed/downloaded"
+
+# Simple text replacement
+  - trigger: ";ts"
+    replace: "Third Surveyor"
+
+# Simple text replacement
+  - trigger: ";tw"
+    replace: "Temporary Works"
+
+# Simple text replacement
+  - trigger: ";loj"
+    replace: "Line of Junction"
+
+
+
+
+
+
