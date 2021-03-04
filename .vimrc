@@ -138,6 +138,8 @@ Plug 'neomake/neomake'
 Plug 'myusuf3/numbers.vim'
 " Nice icons in the file explorer and file type status line.
 Plug 'ryanoasis/vim-devicons'
+Plug 'codota/tabnine-vim'
+set rtp+=~/.vim/pack/tabnine-vim
 
 if using_vim
     " Consoles as buffers (neovim has its own consoles as buffers)

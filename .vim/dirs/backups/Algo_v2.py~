@@ -1,0 +1,222 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon May 11 20:20:36 2020
+
+@author: steve
+"""
+import pandas as pd
+import indicators as indi
+import fxcmpy
+import datetime as dt
+import time
+
+
+
+#FXCM variables
+pair = 'GBPUSD'
+from_symbol = pair[:3]
+to_symbol = pair[3:]
+
+TOKEN = '4209736327b86169fece2f567a590d4c8761504a'
+timeframe = 'D1'
+numberofcandles = 200
+pricedata = None
+
+'''start_date = '2018-01-01'
+end_date = '2020-04-30'
+start_dt = dt.datetime(year=2015, month=1, day=1)
+end_dt = dt.datetime(year=2020, month=4, day=30)'''
+
+con = []
+con = fxcmpy.fxcmpy(access_token=TOKEN, log_level='error', server='demo', log_file='log.txt')
+connection_attempts = 2
+
+
+#Local file path
+local_path = "C://Users//steve//Documents//GitHub//ForexAlgo//FXCM//data//"
+
+
+#Normalisation variables
+nHigh = 3.00
+nLow = -3.00
+nHigh_Trigger = 2.50
+nLow_Trigger = -2.50
+normalise_period = 30
+
+
+#MACD variables
+fEMA = 12
+sEMA = 26
+Signal = 9
+
+########## Download historical data for selected currency pair(s) - START ##########
+#Get FXCM Data from .csv file & Create Data feed
+Position_Log_read = pair+"Position_Log.csv"
+Position_Log_write = pair+"Position_Log.csv"
+Algo_Log_read = pair+'Algo_Log.csv'
+Algo_Log_write = pair+'Algo_Log.csv'
+
+datapath_Position_Log_read = "C://Users//steve//Documents//GitHub//ForexAlgo//FXCM//data//"+Position_Log_read
+datapath_Position_Log_write = "C://Users//steve//Documents//GitHub//ForexAlgo//FXCM//data//"+Position_Log_write
+datapath_Algo_Log_read = "C://Users//steve//Documents//GitHub//ForexAlgo//FXCM//data//"+Algo_Log_read
+datapath_Algo_Log_write = "C://Users//steve//Documents//GitHub//ForexAlgo//FXCM//data//"+Algo_Log_write
+
+
+#df = pd.read_csv(datapath_read, parse_dates=True)
+#df = pd.read_csv(datapath_read, index_col='Date', parse_dates=True)
+
+'''#Strip time from Datetime - Convert to pd.Datetime
+#df['Date'] = pd.to_datetime(df['Date']).dt.date
+
+#Filter for date range
+df = df[start_date:end_date]'''
+
+
+#Pull OHLC data from FXCM and rename columns & index
+
+if con.is_connected == False:
+    print('Cannot connect to FXCM server.')
+else:    
+    print('Connected to FXCM server. Pulling data now.')
+    df = con.get_candles(from_symbol+'/'+to_symbol, period=timeframe, columns=['bidopen','bidhigh','bidlow','bidclose'], number=numberofcandles)
+    print('Data received. Formatting data into dataframe.')
+    df.columns = ['Open','High','Low','Close']
+    df = df.rename_axis('Date')
+    print('Data formatted into dataframe.')
+    #Write data to .csv
+    df.to_csv(local_path+pair+'_data_'+timeframe+'.csv', encoding='utf-8')
+
+print(df)
+
+
+
+
+
+########## Start Calculations ##########
+#pyti MACD
+df['MACD'] = indi.ExMA(df['Close'],fEMA) - indi.ExMA(df['Close'], sEMA)
+#df['mSignal'] = indi.ExMA(df['MACD'], Signal)
+df['mSignal'] = indi.SiMA(df['MACD'],Signal)
+
+#Set MACD trend signal
+#df['MACD_Trend'] = ''
+
+df.loc[(df['MACD'] > df['mSignal']) & (df['mSignal'] < 0), 'MACD_Trend'] = 'Long'
+df.loc[(df['MACD'] < df['mSignal']) & (df['mSignal'] > 0), 'MACD_Trend'] = 'Short'
+
+    
+#Normalise data
+df['Close-Close'] = df['Close']-df['Close'].shift(1)
+df['Mean'] = abs(df['Close-Close'].rolling(normalise_period).mean())
+df['Change fm Mean'] = df['Close-Close'] - df['Mean']
+df['Min'] = df['Change fm Mean'].rolling(normalise_period).min()
+df['Max'] = df['Change fm Mean'].rolling(normalise_period).max()
+
+df['Norm'] = nLow + (df['Change fm Mean']- df['Min']) * (nHigh - nLow) / (df['Max'] - df['Min'])
+
+#Set Normalise signal
+df.loc[(df['Norm'] > nHigh_Trigger), 'Norm_Sig'] = 'Long'
+df.loc[(df['Norm'] < nLow_Trigger), 'Norm_Sig'] = 'Short'
+
+
+#Trade Signals
+df.loc[(df['MACD_Trend'] == 'Long') & (df['Norm_Sig'] == 'Long'), 'TRADE'] = 'BUY'
+df.loc[(df['MACD_Trend'] == 'Short') & (df['Norm_Sig'] == 'Short'), 'TRADE'] = 'SELL'
+
+
+#Drop unnecessary columns
+#df.drop(columns=['StdDev_Close-Close'])
+
+print(df)
+
+
+
+
+
+#Write df to .csv
+#df.to_csv(datapath_write, encoding='utf-8')
+
+
+# This function runs once at the beginning of the strategy to run initial one-time processes
+def Prepare():
+    global pricedata
+
+    print("Requesting Initial Price Data...")
+    pricedata = con.get_candles(symbol, period=timeframe, number=numberofcandles)
+    print(pricedata)
+    print("Initial Price Data Received...")
+    
+
+# Get latest close bar prices and run Update() function every close of bar/candle
+def StrategyHeartBeat():
+    while True:
+        currenttime = dt.datetime.now()
+        if timeframe == "m1" and currenttime.second == 0 and getLatestPriceData():
+            Update()
+        elif timeframe == "m5" and currenttime.second == 0 and currenttime.minute % 5 == 0 and getLatestPriceData():
+            Update()
+            time.sleep(240)
+        elif timeframe == "m15" and currenttime.second == 0 and currenttime.minute % 15 == 0 and getLatestPriceData():
+            Update()
+            time.sleep(840)
+        elif timeframe == "m30" and currenttime.second == 0 and currenttime.minute % 30 == 0 and getLatestPriceData():
+            Update()
+            time.sleep(1740)
+        elif currenttime.second == 0 and currenttime.minute == 0 and getLatestPriceData():
+            Update()
+            time.sleep(3540)
+        time.sleep(1)
+
+
+# Returns True when pricedata is properly updated
+def GetLatestPriceData():
+    global pricedata
+
+    # Normal operation will update pricedata on first attempt
+    new_pricedata = con.get_candles(symbol, period=timeframe, number=numberofcandles)
+    if new_pricedata.index.values[len(new_pricedata.index.values)-1] != pricedata.index.values[len(pricedata.index.values)-1]:
+        pricedata= new_pricedata
+        return True
+
+    counter = 0
+    # If data is not available on first attempt, try up to 3 times to update pricedata
+    while new_pricedata.index.values[len(new_pricedata.index.values)-1] == pricedata.index.values[len(pricedata.index.values)-1] and counter < 3:
+        print("No updated prices found, trying again in 10 seconds...")
+        counter+=1
+        time.sleep(10)
+        new_pricedata = con.get_candles(symbol, period=timeframe, number=numberofcandles)
+    if new_pricedata.index.values[len(new_pricedata.index.values)-1] != pricedata.index.values[len(pricedata.index.values)-1]:
+        pricedata = new_pricedata
+        return True
+    else:
+        return False
+    
+
+# This function is run every time a candle closes
+def Update():
+    print(str(dt.datetime.now()) + "  " + timeframe + " Bar Closed - Running Update Function...")
+
+    print("Close Price: " + str(pricedata['bidclose'][len(pricedata)-1]))
+
+    print(str(dt.datetime.now()) + "  " + timeframe + " Update Function Completed.\n")
+
+
+Prepare() # Initialize strategy
+StrategyHeartBeat() # Run strategy
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

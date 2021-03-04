@@ -1,0 +1,28 @@
+
+
+IMAPStore steve.w@greyandassociates.co.uk-remote
+Host imap.gmail.com
+Port 993
+User steve.w@greyandassociates.co.uk
+PassCmd "pass mw-steve.w@greyandassociates.co.uk"
+AuthMechs LOGIN
+SSLType IMAPS
+CertificateFile /etc/ssl/certs/ca-certificates.crt
+
+MaildirStore steve.w@greyandassociates.co.uk-local
+Subfolders Verbatim
+Path /home/stevew/.local/share/mail/steve.w@greyandassociates.co.uk/
+Inbox /home/stevew/.local/share/mail/steve.w@greyandassociates.co.uk/INBOX
+Flatten .
+
+Channel steve.w@greyandassociates.co.uk
+Expunge Both
+Master :steve.w@greyandassociates.co.uk-remote:
+Slave :steve.w@greyandassociates.co.uk-local:
+Patterns * !"[Gmail]/All Mail"
+Create Both
+SyncState *
+MaxMessages 0
+ExpireUnread no
+# End profile
+
